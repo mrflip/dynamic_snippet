@@ -1,32 +1,43 @@
 # DynamicSnippet
 class SessionController < ApplicationController
+  
+  # Set or explicitly delete the cookie
   def snippet_cookie token, text=nil
     if text.nil? 
-      logger.info "Killed dynamic_snippet #{token}"
       cookies.delete(token) 
     else 
-      logger.info "Set dynamic_snippet #{token} to #{text}"
       cookies[token] = text 
     end
   end
-
-  def userid_and_name controller, action
-    if logged_in?
-      "#{current_user.id}##{current_user.login}"
-    else
-      '_#_'
-    end
-  end  
   
-  def self.dynamic_snippet token, before_method=nil, after_method=nil
-    before_filter :only => [:create, :destroy] do |controller, action|
-      val = controller.send(before_method, controller, action) if before_method
-      controller.snippet_cookie token, val
-    end
+  # Sets or kills cookie on login. 
+  # Nil or no signout_cookie_setter kills the cookie, important to do on signout.
+  # Setting the cookie from the server side isn't strictly necessary.
+  #
+  def self.set_cookie_on_signin token, signin_cookie_setter=nil
     after_filter :only => [:create] do |controller, action|
-      val = controller.send(after_method,  controller, action) if after_method
+      val = controller.send(signin_cookie_setter,  controller, action) if signin_cookie_setter
       controller.snippet_cookie token, val
     end
+  end
+  # kills the cookie on signin
+  def self.kill_cookie_on_signin token
+    set_cookie_on_signin token, nil
+  end
+
+  #
+  # Sets or kills cookie on logout. 
+  # Setting the cookie from the server side isn't strictly necessary.
+  #
+  def self.set_cookie_on_signout token, signout_cookie_setter
+    before_filter :only => [:destroy] do |controller, action|
+      val = controller.send(signout_cookie_setter, controller, action) if signout_cookie_setter
+      controller.snippet_cookie token, val
+    end
+  end
+  # kills the cookie on signout. This has to be done server-side.
+  def self.kill_cookie_on_signout token
+    set_cookie_on_signout token, nil
   end
   
 end
