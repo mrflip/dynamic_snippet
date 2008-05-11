@@ -35,7 +35,7 @@ function hello_bar_fetch()  {
     hello_bar_stuff(userid_and_name);
   } else {
     // get it, save it, stuff it in
-    $.get('/users/username', '', function(userid_and_name){
+    $.get('/users/userid_and_name', '', function(userid_and_name){
       if (userid_and_name != '_#_') { $.cookie('userid_and_name', userid_and_name, { path: '/', expires: null }); }
       hello_bar_stuff(userid_and_name);
     });

@@ -1,13 +1,83 @@
 DynamicSnippet
 ==============
 
-Introduction goes here.
+If you use page caching (and you should), you'll run into a problem: the
+"tyranny of the Bobs.":http://tinyurl.com/6mjoq7 Your entire page could be
+static, but if you want to say "Hi, Bob! [[sign out here]]" to Bob and say
+"Please [[sign in]], stranger" to anonymous users then each Bob and each
+stranger has to get his own page. 
+
+But all we want to do is tell Bob howdy, hide the sign in link and show him a
+sign out link.  Rather than falling back to action or fragment caching (yikes!),
+we'll make our page (the same one every person gets) ask our server for the
+username using AJAX.  Once the server answers back, we can stuff the right kind
+of link into our static bar: if it's Bob, we rewrite with "Hi, Bob!", if it's
+Barbie we rewrite with "Hiya, Barbie!", and if they're not logged in it's "sign
+in | sign up".
+
+So for this, we add a route '/users/userid_and_name' that returns the user's ID
+and name (not javascript! not even HTML! just the dozen or so characters!).  The
+client queries for it and, if logged in, rewrites the page accordingly. 
+
+We can do even better.  If we are logged in, the client-side JS sets the
+userid_and_name as a short-lived cookie.  On each page load we check for that
+cookie; if it's there, rewrite using it, and if it's not there, query the
+server. The only server-side change is to delete the cookie when we log out.
+(The current code also sets it from the server side on log in because it would
+occasionally not take until a page refresh... but if I were smart enough to fix
+that I'd only set from the client side.)
+
+With the cookie set, it's fast enough that you won't see flashing content or
+dancing layout as the hello-bar is rewritten.  And once a user is logged in they
+never hit the server for their username.  It's fully robust, too: if Bob turns
+cookies off, we'll still say hi but he has to live with an extra 500ms page
+load.  If he turns javascript off as well he can still sign in, stay signed in,
+and sign out -- he'll get the anonymous-user top bar, but that's not our
+problem.
+
+Note that the /only/ thing the cookie does is rewrite the top bar.  The server
+never asks for it: just sets it on signin, deletes it on signout.  Client-side
+cookies are untrusted inputs, just like URL params, so take care that only
+client-side code ever reads this cookie.
+
+Airing of Grievances:
+---------------------
+
+I will have disappointed you in the following way: this is neither plugin nor
+generator.  I can see why the plugin structure and the generators directory
+might have led you to believe that.  Maybe someday it will be... but it's not
+really generic enough yet.
+
+
+
+# =======================
+# Add to config/routes.rb
+  
+  # Allow page caching with a minority fraction of dynamic content.  
+  # Add a similar route for any other ancilliary dynamic content (sidebar, etc.). 
+  # If something is *mostly* dynamic, then you should to action or (more likely) fragment cache.
+  map.userid_and_name '/users/userid_and_name', :controller => "users",   :action => 'userid_and_name'
+
+  
+
+Caching:
+--------
+Four out of five dentists agree that page caching is key to rails performance.
+
+* The best caching tutorial, clear and complete:
+  http://www.railsenvy.com/2007/2/28/rails-caching-tutorial
+* Inspiration for the 
+  * http://josh.the-owens.com/archives/2007/08/20/rails-page-caching-with-an-admin-interface/
+  * http://withoutscope.com/2007/8/12/for-the-love-of-god-use-the-page-cache
+  * http://blog.maxdunn.com/articles/2006/09/16/ruby-on-rails-advanced-page-caching
 
 
 Example
 =======
 
-Example goes here.
 
 
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+Copyright (c) 2008 Philip (flip) Kromer, released under the MIT license
+http://infochimps.org/
+
+
