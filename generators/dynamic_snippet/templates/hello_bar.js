@@ -14,7 +14,7 @@ function hello_bar_stuff(userid_and_name) {
   if ((!username) || (username == '_')) {
     $('#hello-bar').html(
       '<div id="hello-bar-greeting">Not signed in</div>'+
-      '<div id="hello-bar-action" >(<a href="/signin" title="">sign up</a> | <a href="/signin" title="">sign in</a>)</div>');
+      '<div id="hello-bar-action" >(<a href="/signup" title="">sign up</a> | <a href="/signin" title="">sign in</a>)</div>');
   } else {
     $('#hello-bar').html(
       '<div id="hello-bar-greeting">Signed in as <a href="/users/'+userid+'">'+username+'</a></div>' +
