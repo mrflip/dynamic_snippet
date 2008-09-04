@@ -1,16 +1,24 @@
-# DynamicSnippet
-class SessionController < ApplicationController
-  
-  # Set or explicitly delete the cookie
-  def snippet_cookie token, text=nil
-    if text.nil? 
-      cookies.delete(token) 
-    else 
-      cookies[token] = text 
+module DynamicSnippet
+
+protected
+  def hellobar_snippet
+    if logged_in?
+      snippet = "#{current_user.id}##{current_user.uniqname}"
+    else
+      snippet = "_#_"
     end
   end
-  
-  # Sets or kills cookie on login. 
+
+  # Set or explicitly delete the cookie
+  def snippet_cookie token, text=nil
+    if text.nil?
+      cookies.delete(token)
+    else
+      cookies[token] = text
+    end
+  end
+
+  # Sets or kills cookie on login.
   # Nil or no signout_cookie_setter kills the cookie, important to do on signout.
   # Setting the cookie from the server side isn't strictly necessary.
   #
@@ -26,7 +34,7 @@ class SessionController < ApplicationController
   end
 
   #
-  # Sets or kills cookie on logout. 
+  # Sets or kills cookie on logout.
   # Setting the cookie from the server side isn't strictly necessary.
   #
   def self.set_cookie_on_signout token, signout_cookie_setter
@@ -39,5 +47,5 @@ class SessionController < ApplicationController
   def self.kill_cookie_on_signout token
     set_cookie_on_signout token, nil
   end
-  
+
 end
