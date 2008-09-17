@@ -3,7 +3,7 @@ module DynamicSnippet
 protected
   def hellobar_snippet
     if logged_in?
-      snippet = "#{current_user.id}##{current_user.uniqname}"
+      snippet = "#{current_user.id}##{current_user.handle}"
     else
       snippet = "_#_"
     end
